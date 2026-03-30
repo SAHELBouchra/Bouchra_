@@ -32,10 +32,6 @@ st.markdown("""
         float: left;
         margin-right: 20px;
     }
-    .timeline-buttons .stButton button {
-        border-radius: 20px;
-        font-weight: 500;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -79,7 +75,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# HEALTH INDICATORS - Modern Cards
+# HEALTH INDICATORS
 # =========================================================
 st.subheader("Health Indicators")
 
@@ -102,7 +98,7 @@ def get_status_badge(metric_type):
         elif value <= 3: return "MODERATE", "#eab308"
         else: return "HIGH", "#ef4444"
 
-# Body Age Card
+# Body Age
 status, color = get_status_badge("body_age")
 delta_body = latest.get("body_age_change", 0)
 with col1:
@@ -121,7 +117,7 @@ with col1:
     </div>
     """, unsafe_allow_html=True)
 
-# Work Load Card
+# Work Load
 status, color = get_status_badge("work_load")
 delta_work = latest.get("work_load_change", 0)
 with col2:
@@ -139,7 +135,7 @@ with col2:
     </div>
     """, unsafe_allow_html=True)
 
-# Body Toxins Card
+# Body Toxins
 status, color = get_status_badge("body_toxin")
 delta_toxin = latest.get("body_toxin_change", 0)
 with col3:
@@ -160,57 +156,43 @@ with col3:
 st.divider()
 
 # =========================================================
-# LONGITUDINAL PERFORMANCE TIMELINE - STYLE COMME L'IMAGE
+# AI PREDICTIONS (sans "3 months")
+# =========================================================
+st.subheader("AI Predictions")
+
+p1, p2, p3, p4 = st.columns(4)
+
+p1.metric("Injury Risk", f"{latest.get('predicted_injury_risk_%', 0):.0f}%")
+p1.progress(min(100, max(0, int(latest.get('predicted_injury_risk_%', 0)))))
+
+p2.metric("Chronic Disease Risk", f"{latest.get('predicted_chronic_risk_%', 0):.0f}%")
+p2.progress(min(100, max(0, int(latest.get('predicted_chronic_risk_%', 0)))))
+
+p3.metric("Predicted Body Age", f"{latest.get('predicted_body_age_3m', 0):.1f}")
+p3.caption("Future predicted biological age")
+
+p4.metric("Performance Improvement", f"{latest.get('predicted_performance_improvement_%', 0):+.1f}%")
+p4.caption("Expected performance change")
+
+st.divider()
+
+# =========================================================
+# LONGITUDINAL TIMELINE
 # =========================================================
 st.subheader("Longitudinal Performance Timeline")
-st.caption("Monthly tracking with event correlation")
-
-# 4 Boutons stylés
-col_buttons = st.columns([1.2, 1, 1, 1])
-btn_all = col_buttons[0].button("All Metrics", use_container_width=True, type="primary" if True else "secondary")
-btn_body = col_buttons[1].button("Body Age", use_container_width=True)
-btn_work = col_buttons[2].button("Workload", use_container_width=True)
-btn_toxin = col_buttons[3].button("Toxins", use_container_width=True)
-
-# Logique des boutons
-if btn_body:
-    metrics = ["body_age"]
-    colors = {"body_age": "#FFD700"}
-elif btn_work:
-    metrics = ["work_load"]
-    colors = {"work_load": "#00FF9D"}
-elif btn_toxin:
-    metrics = ["body_toxin"]
-    colors = {"body_toxin": "#00CCFF"}
-else:
-    metrics = ["body_age", "work_load", "body_toxin"]
-    colors = {"body_age": "#FFD700", "work_load": "#00FF9D", "body_toxin": "#00CCFF"}
 
 fig = px.line(
     user_df,
     x="datetime",
-    y=metrics,
-    color_discrete_map=colors,
-    markers=True
+    y=["body_age", "work_load", "body_toxin"],
+    color_discrete_map={
+        "body_age": "#FFD700",
+        "work_load": "#00FF9D",
+        "body_toxin": "#00CCFF"
+    }
 )
 
-fig.update_layout(
-    template="plotly_dark",
-    height=520,
-    plot_bgcolor="#0f3d2e",
-    paper_bgcolor="#0a1f1a",
-    xaxis_title="",
-    yaxis_title="",
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=-0.25,
-        xanchor="center",
-        x=0.5
-    ),
-    font=dict(color="#e0f2e9")
-)
-
+fig.update_layout(template="plotly_dark", height=500)
 st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
