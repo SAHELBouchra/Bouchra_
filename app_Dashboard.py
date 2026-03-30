@@ -160,26 +160,6 @@ with col3:
 st.divider()
 
 # =========================================================
-# AI PREDICTIONS
-# =========================================================
-st.subheader("AI Predictions")
-p1, p2, p3, p4 = st.columns(4)
-
-p1.metric("Injury Risk", f"{latest.get('predicted_injury_risk_%', 0):.0f}%")
-p1.progress(min(100, max(0, int(latest.get('predicted_injury_risk_%', 0)))))
-
-p2.metric("Chronic Disease Risk", f"{latest.get('predicted_chronic_risk_%', 0):.0f}%")
-p2.progress(min(100, max(0, int(latest.get('predicted_chronic_risk_%', 0)))))
-
-p3.metric("Predicted Body Age (3m)", f"{latest.get('predicted_body_age_3m', 0):.1f}")
-p3.caption("Lower is better")
-
-p4.metric("Performance Improvement", f"{latest.get('predicted_performance_improvement_%', 0):+.1f}%")
-p4.caption("Higher is better")
-
-st.divider()
-
-# =========================================================
 # LONGITUDINAL PERFORMANCE TIMELINE - STYLE COMME L'IMAGE
 # =========================================================
 st.subheader("Longitudinal Performance Timeline")
