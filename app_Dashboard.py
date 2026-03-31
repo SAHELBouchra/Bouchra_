@@ -177,22 +177,57 @@ p4.caption("Expected performance change")
 st.divider()
 
 # =========================================================
-# LONGITUDINAL TIMELINE
+# LONGITUDINAL PERFORMANCE TIMELINE - STYLE COMME L'IMAGE
 # =========================================================
 st.subheader("Longitudinal Performance Timeline")
+st.caption("Monthly tracking with event correlation")
+
+# 4 Boutons stylés
+col_buttons = st.columns([1.2, 1, 1, 1])
+btn_all = col_buttons[0].button("All Metrics", use_container_width=True, type="primary" if True else "secondary")
+btn_body = col_buttons[1].button("Body Age", use_container_width=True)
+btn_work = col_buttons[2].button("Workload", use_container_width=True)
+btn_toxin = col_buttons[3].button("Toxins", use_container_width=True)
+
+# Logique des boutons
+if btn_body:
+    metrics = ["body_age"]
+    colors = {"body_age": "#FFD700"}
+elif btn_work:
+    metrics = ["work_load"]
+    colors = {"work_load": "#00FF9D"}
+elif btn_toxin:
+    metrics = ["body_toxin"]
+    colors = {"body_toxin": "#00CCFF"}
+else:
+    metrics = ["body_age", "work_load", "body_toxin"]
+    colors = {"body_age": "#FFD700", "work_load": "#00FF9D", "body_toxin": "#00CCFF"}
 
 fig = px.line(
     user_df,
     x="datetime",
-    y=["body_age", "work_load", "body_toxin"],
-    color_discrete_map={
-        "body_age": "#FFD700",
-        "work_load": "#00FF9D",
-        "body_toxin": "#00CCFF"
-    }
+    y=metrics,
+    color_discrete_map=colors,
+    markers=True
 )
 
-fig.update_layout(template="plotly_dark", height=500)
+fig.update_layout(
+    template="plotly_dark",
+    height=520,
+    plot_bgcolor="#0f3d2e",
+    paper_bgcolor="#0a1f1a",
+    xaxis_title="",
+    yaxis_title="",
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=-0.25,
+        xanchor="center",
+        x=0.5
+    ),
+    font=dict(color="#e0f2e9")
+)
+
 st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
