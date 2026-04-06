@@ -4,15 +4,15 @@ import plotly.express as px
 
 st.set_page_config(layout="wide", page_title="PEREN AI – Digital Twin")
 
-# Style CSS
+# ====================== STYLE CSS GLOBAL ======================
 st.markdown("""
 <style>
     .stApp {
-        background-color: #0a1f1a;
+        background-color: #0a0a0a !important;
         color: #e0f2e9;
     }
     .user-card {
-        background: linear-gradient(135deg, #0f3d2e, #1a5c4a);
+        background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
         padding: 25px;
         border-radius: 16px;
         border: 1px solid #10b981;
@@ -20,7 +20,7 @@ st.markdown("""
     }
     .initials {
         background: #10b981;
-        color: #0a1f1a;
+        color: #0a0a0a;
         font-weight: bold;
         font-size: 32px;
         width: 70px;
@@ -32,12 +32,35 @@ st.markdown("""
         float: left;
         margin-right: 20px;
     }
+    /* Cartes Health Indicators - même taille */
+    .health-card {
+        background: #1a1a1a;
+        padding: 22px;
+        border-radius: 16px;
+        border: 1px solid;
+        height: 260px !important;
+        display: flex;
+        flex-direction: column;
+    }
+    /* Tous les boutons en noir */
+    .stButton>button {
+        background-color: #1a1a1a !important;
+        color: #e0f2e9 !important;
+        border: 1px solid #333333 !important;
+        border-radius: 8px;
+        font-weight: 500;
+        height: 45px;
+    }
+    .stButton>button:hover {
+        background-color: #2a2a2a !important;
+        border-color: #10b981 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("PEREN AI – Digital Twin Dashboard")
 
-# Chargement des données
+# ====================== DATA LOADING ======================
 @st.cache_data
 def load_data():
     return pd.read_csv("final_with_predictions.csv")
@@ -54,9 +77,7 @@ selected_user = st.sidebar.selectbox("Select User", users)
 user_df = df[df["user_id"] == selected_user].copy().sort_values("datetime")
 latest = user_df.iloc[-1]
 
-# =========================================================
-# USER PROFILE CARD
-# =========================================================
+# ====================== USER PROFILE ======================
 gender = "Female" if str(latest.get("sex", "")).lower() == "female" else "Male" if str(latest.get("sex", "")).lower() == "male" else "N/A"
 initial = gender[0] if gender != "N/A" else "U"
 
@@ -74,9 +95,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# =========================================================
-# HEALTH INDICATORS
-# =========================================================
+# ====================== HEALTH INDICATORS ======================
 st.subheader("Health Indicators")
 
 col1, col2, col3 = st.columns(3)
@@ -103,7 +122,7 @@ status, color = get_status_badge("body_age")
 delta_body = latest.get("body_age_change", 0)
 with col1:
     st.markdown(f"""
-    <div style="background:#0f3d2e; padding:22px; border-radius:16px; border:1px solid {color};">
+    <div class="health-card" style="border-color: {color};">
         <div style="display:flex; justify-content:space-between;">
             <span style="font-size:28px;">❤️</span>
             <span style="background:{color}; color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
@@ -111,7 +130,7 @@ with col1:
         <h3 style="color:#e0f2e9; margin:15px 0 8px 0;">Body Age</h3>
         <h1 style="margin:0; color:white;">{latest.get('body_age', 0):.1f} <span style="font-size:22px; color:#94a3b8;">/ {latest.get('age', 0)}</span></h1>
         <p style="color:#94a3b8;">Biological vs Chronological Age</p>
-        <p style="color:{'#4ade80' if delta_body <= 0 else '#f87171'}; font-size:15px;">
+        <p style="color:{'#4ade80' if delta_body <= 0 else '#f87171'}; font-size:15px; margin-top:auto;">
             {'↓' if delta_body <= 0 else '↑'} {abs(delta_body):.1f} years vs last period
         </p>
     </div>
@@ -122,14 +141,14 @@ status, color = get_status_badge("work_load")
 delta_work = latest.get("work_load_change", 0)
 with col2:
     st.markdown(f"""
-    <div style="background:#0f3d2e; padding:22px; border-radius:16px; border:1px solid {color};">
+    <div class="health-card" style="border-color: {color};">
         <div style="display:flex; justify-content:space-between;">
             <span style="font-size:28px;">⚡</span>
             <span style="background:{color}; color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
         </div>
         <h3 style="color:#e0f2e9; margin:15px 0 8px 0;">Workload Intensity</h3>
         <h1 style="margin:0; color:white;">{latest.get('work_load', 0):.1f} <span style="font-size:18px; color:#94a3b8;">/ 100</span></h1>
-        <p style="color:{'#4ade80' if delta_work <= 0 else '#f87171'}; font-size:15px;">
+        <p style="color:{'#4ade80' if delta_work <= 0 else '#f87171'}; font-size:15px; margin-top:auto;">
             {'↓' if delta_work <= 0 else '↑'} {abs(delta_work):.1f} vs last period
         </p>
     </div>
@@ -140,14 +159,14 @@ status, color = get_status_badge("body_toxin")
 delta_toxin = latest.get("body_toxin_change", 0)
 with col3:
     st.markdown(f"""
-    <div style="background:#0f3d2e; padding:22px; border-radius:16px; border:1px solid {color};">
+    <div class="health-card" style="border-color: {color};">
         <div style="display:flex; justify-content:space-between;">
             <span style="font-size:28px;">🛡️</span>
             <span style="background:{color}; color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
         </div>
         <h3 style="color:#e0f2e9; margin:15px 0 8px 0;">Body Toxins</h3>
         <h1 style="margin:0; color:white;">{latest.get('body_toxin', 0):.1f} <span style="font-size:18px; color:#94a3b8;">/ 100</span></h1>
-        <p style="color:{'#4ade80' if delta_toxin <= 0 else '#f87171'}; font-size:15px;">
+        <p style="color:{'#4ade80' if delta_toxin <= 0 else '#f87171'}; font-size:15px; margin-top:auto;">
             {'↓' if delta_toxin <= 0 else '↑'} {abs(delta_toxin):.1f} vs last period
         </p>
     </div>
@@ -155,11 +174,8 @@ with col3:
 
 st.divider()
 
-# =========================================================
-# AI PREDICTIONS (sans "3 months")
-# =========================================================
+# ====================== AI PREDICTIONS ======================
 st.subheader("AI Predictions")
-
 p1, p2, p3, p4 = st.columns(4)
 
 p1.metric("Injury Risk", f"{latest.get('predicted_injury_risk_%', 0):.0f}%")
@@ -176,15 +192,14 @@ p4.caption("Expected performance change")
 
 st.divider()
 
-# =========================================================
-# LONGITUDINAL PERFORMANCE TIMELINE - STYLE COMME L'IMAGE
-# =========================================================
+# ====================== LONGITUDINAL TIMELINE ======================
 st.subheader("Longitudinal Performance Timeline")
 st.caption("Monthly tracking with event correlation")
 
-# 4 Boutons stylés
+# 4 Boutons tous en noir
 col_buttons = st.columns([1.2, 1, 1, 1])
-btn_all = col_buttons[0].button("All Metrics", use_container_width=True, type="primary" if True else "secondary")
+
+btn_all = col_buttons[0].button("All Metrics", use_container_width=True)
 btn_body = col_buttons[1].button("Body Age", use_container_width=True)
 btn_work = col_buttons[2].button("Workload", use_container_width=True)
 btn_toxin = col_buttons[3].button("Toxins", use_container_width=True)
@@ -214,23 +229,16 @@ fig = px.line(
 fig.update_layout(
     template="plotly_dark",
     height=520,
-    plot_bgcolor="#0f3d2e",
-    paper_bgcolor="#0a1f1a",
+    plot_bgcolor="#1a1a1a",
+    paper_bgcolor="#0a0a0a",
     xaxis_title="",
     yaxis_title="",
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=-0.25,
-        xanchor="center",
-        x=0.5
-    ),
+    legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5),
     font=dict(color="#e0f2e9")
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
-
 st.subheader("Assessment History")
 st.dataframe(user_df)
