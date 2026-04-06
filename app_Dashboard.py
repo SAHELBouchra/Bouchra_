@@ -35,7 +35,7 @@ st.markdown("""
     /* Cartes Health Indicators - même taille */
     .health-card {
         background: #1a1a1a;
-        padding: 22px;
+        padding: 30px;
         border-radius: 16px;
         border: 1px solid;
         height: 260px !important;
