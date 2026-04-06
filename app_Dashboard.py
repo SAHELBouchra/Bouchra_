@@ -38,7 +38,7 @@ st.markdown("""
         padding: 30px;
         border-radius: 16px;
         border: 1px solid;
-        height: 260px !important;
+        height: 300px !important;
         display: flex;
         flex-direction: column;
     }
