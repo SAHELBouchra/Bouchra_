@@ -255,7 +255,7 @@ else:
 
 with p4:
     st.markdown(f"""
-    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {perf_color}; height:245px;">
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {perf_color}; height:300px;">
         <span style="font-size:28px;">📈</span>
         <h4 style="margin:12px 0 8px 0;">Performance Improvement</h4>
         <h1 style="margin:0; color:{perf_color};">{perf:+.1f}%</h1>
