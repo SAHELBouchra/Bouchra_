@@ -265,31 +265,6 @@ with p4:
     """, unsafe_allow_html=True)
 
 st.divider()
-
-# ====================== KEY INSIGHTS & RECOMMENDATIONS ======================
-st.subheader("Key Insights & Recommendations")
-
-insight_col1, insight_col2 = st.columns(2)
-
-with insight_col1:
-    st.markdown(f"""
-    <div class="insight-card">
-        <h4>📌 Main Insight</h4>
-        <p>Your body age is currently <strong>{latest.get('body_age', 0):.1f}</strong> compared to your chronological age of <strong>{latest.get('age', 0)}</strong>.</p>
-        <p>Workload is in <strong>{latest.get('workload_state', 'moderate_load').replace('_', ' ').title()}</strong> zone.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-with insight_col2:
-    st.markdown(f"""
-    <div class="insight-card">
-        <h4>💡 Top Recommendation</h4>
-        <p>Focus on improving sleep and reducing sedentary time to lower chronic risk and support performance gains.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.divider()
-
 # ====================== TIMELINE ======================
 st.subheader("Longitudinal Performance Timeline")
 st.caption("Monthly tracking with event correlation")
