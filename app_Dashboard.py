@@ -129,7 +129,7 @@ with col1:
     <div class="health-card" style="border-color: {color};">
         <div style="display:flex; justify-content:space-between;">
             <span style="font-size:28px;">❤️</span>
-            <span style="background:{color}; color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
+            <span style="background:{color}; color:white; padding:8px 16px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
         </div>
         <h3 style="color:#e0f2e9; margin:15px 0 8px 0;">Body Age</h3>
         <h1 style="margin:0; color:white;">{latest.get('body_age', 0):.1f} <span style="font-size:22px; color:#94a3b8;">/ {latest.get('age', 0)}</span></h1>
