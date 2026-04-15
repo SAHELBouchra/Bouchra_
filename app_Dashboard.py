@@ -269,6 +269,8 @@ with p4:
     </div>
     """, unsafe_allow_html=True)
 
+st.divider()
+
 # ====================== LONGITUDINAL TIMELINE ======================
 st.subheader("Longitudinal Performance Timeline")
 st.caption("Monthly tracking with event correlation")
