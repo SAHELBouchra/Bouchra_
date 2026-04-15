@@ -176,21 +176,98 @@ st.divider()
 
 # ====================== AI PREDICTIONS ======================
 st.subheader("AI Predictions")
+st.caption("Predictions for the coming period based on your current profile and trends")
+
 p1, p2, p3, p4 = st.columns(4)
 
-p1.metric("Injury Risk", f"{latest.get('predicted_injury_risk_%', 0):.0f}%")
-p1.progress(min(100, max(0, int(latest.get('predicted_injury_risk_%', 0)))))
+# 1. Injury Risk
+injury_risk = latest.get('predicted_injury_risk_%', 0)
+if injury_risk < 25:
+    injury_color = "#10b981"
+    injury_text = "Low risk – Good recovery and load management"
+elif injury_risk < 50:
+    injury_color = "#f59e0b"
+    injury_text = "Moderate risk – Pay attention to recovery"
+else:
+    injury_color = "#ef4444"
+    injury_text = "High risk – Consider reducing intensity"
 
-p2.metric("Chronic Disease Risk", f"{latest.get('predicted_chronic_risk_%', 0):.0f}%")
-p2.progress(min(100, max(0, int(latest.get('predicted_chronic_risk_%', 0)))))
+with p1:
+    st.markdown(f"""
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {injury_color}; height:240px;">
+        <h4 style="margin:0 0 8px 0; color:#e0f2e9;">Injury Risk</h4>
+        <h1 style="margin:0; color:{injury_color};">{injury_risk:.0f}%</h1>
+        <p style="color:#94a3b8; font-size:14px; margin:12px 0;">Probability of injury in the near future</p>
+        <p style="color:{injury_color}; font-size:13px;">{injury_text}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-p3.metric("Predicted Body Age", f"{latest.get('predicted_body_age_3m', 0):.1f}")
-p3.caption("Future predicted biological age")
+# 2. Chronic Disease Risk
+chronic_risk = latest.get('predicted_chronic_risk_%', 0)
+if chronic_risk < 30:
+    chronic_color = "#10b981"
+    chronic_text = "Low risk – Current lifestyle is protective"
+elif chronic_risk < 60:
+    chronic_color = "#f59e0b"
+    chronic_text = "Moderate risk – Some improvements recommended"
+else:
+    chronic_color = "#ef4444"
+    chronic_text = "High risk – Medical follow-up advised"
 
-p4.metric("Performance Improvement", f"{latest.get('predicted_performance_improvement_%', 0):+.1f}%")
-p4.caption("Expected performance change")
+with p2:
+    st.markdown(f"""
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {chronic_color}; height:240px;">
+        <h4 style="margin:0 0 8px 0; color:#e0f2e9;">Chronic Disease Risk</h4>
+        <h1 style="margin:0; color:{chronic_color};">{chronic_risk:.0f}%</h1>
+        <p style="color:#94a3b8; font-size:14px; margin:12px 0;">Risk of developing long-term health issues</p>
+        <p style="color:{chronic_color}; font-size:13px;">{chronic_text}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.divider()
+# 3. Predicted Body Age
+pred_body_age = latest.get('predicted_body_age_3m', 0)
+delta_age = pred_body_age - latest.get('body_age', 0)
+if delta_age < -1:
+    age_color = "#10b981"
+    age_text = "Excellent – Your body is getting biologically younger"
+elif delta_age < 1:
+    age_color = "#eab308"
+    age_text = "Stable – Maintaining good biological age"
+else:
+    age_color = "#ef4444"
+    age_text = "Attention – Biological age is increasing"
+
+with p3:
+    st.markdown(f"""
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {age_color}; height:240px;">
+        <h4 style="margin:0 0 8px 0; color:#e0f2e9;">Predicted Body Age</h4>
+        <h1 style="margin:0; color:{age_color};">{pred_body_age:.1f}</h1>
+        <p style="color:#94a3b8; font-size:14px; margin:12px 0;">Estimated biological age in the near future</p>
+        <p style="color:{age_color}; font-size:13px;">{age_text}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# 4. Performance Improvement
+perf_imp = latest.get('predicted_performance_improvement_%', 0)
+if perf_imp > 15:
+    perf_color = "#10b981"
+    perf_text = "Strong expected improvement"
+elif perf_imp > 0:
+    perf_color = "#eab308"
+    perf_text = "Moderate expected improvement"
+else:
+    perf_color = "#ef4444"
+    perf_text = "Risk of performance decline"
+
+with p4:
+    st.markdown(f"""
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {perf_color}; height:240px;">
+        <h4 style="margin:0 0 8px 0; color:#e0f2e9;">Performance Improvement</h4>
+        <h1 style="margin:0; color:{perf_color};">{perf_imp:+.1f}%</h1>
+        <p style="color:#94a3b8; font-size:14px; margin:12px 0;">Expected change in physical performance</p>
+        <p style="color:{perf_color}; font-size:13px;">{perf_text}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ====================== LONGITUDINAL TIMELINE ======================
 st.subheader("Longitudinal Performance Timeline")
