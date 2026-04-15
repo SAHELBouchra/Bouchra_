@@ -4,7 +4,7 @@ import plotly.express as px
 
 st.set_page_config(layout="wide", page_title="PEREN AI – Digital Twin")
 
-# ====================== STYLE CSS GLOBAL ======================
+# ====================== STYLE CSS ======================
 st.markdown("""
 <style>
     .stApp {
@@ -16,7 +16,7 @@ st.markdown("""
         padding: 25px;
         border-radius: 16px;
         border: 1px solid #10b981;
-        margin-bottom: 25px;
+        margin-bottom: 30px;
     }
     .initials {
         background: #10b981;
@@ -32,17 +32,16 @@ st.markdown("""
         float: left;
         margin-right: 20px;
     }
-    /* Cartes Health Indicators - même taille */
     .health-card {
         background: #1a1a1a;
-        padding: 30px;
+        padding: 22px;
         border-radius: 16px;
         border: 1px solid;
-        height: 320px !important;
+        height: 260px !important;
         display: flex;
         flex-direction: column;
     }
-    /* Tous les boutons en noir */
+    /* Boutons Timeline en noir */
     .stButton>button {
         background-color: #1a1a1a !important;
         color: #e0f2e9 !important;
@@ -55,12 +54,18 @@ st.markdown("""
         background-color: #2a2a2a !important;
         border-color: #10b981 !important;
     }
+    .insight-card {
+        background: #1a1a1a;
+        padding: 18px;
+        border-radius: 12px;
+        border-left: 4px solid #10b981;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("PEREN AI – Digital Twin Dashboard")
 
-# ====================== DATA LOADING ======================
+# ====================== DATA ======================
 @st.cache_data
 def load_data():
     return pd.read_csv("final_with_predictions.csv")
@@ -69,7 +74,6 @@ df = load_data()
 df["datetime"] = pd.to_datetime(df["datetime"])
 df = df.sort_values(["user_id", "datetime"])
 
-# Sidebar
 st.sidebar.header("Filters")
 users = df["user_id"].unique()
 selected_user = st.sidebar.selectbox("Select User", users)
@@ -111,7 +115,7 @@ def get_status_badge(metric_type):
         if value <= 30: return "OPTIMAL", "#10b981"
         elif value <= 60: return "MODERATE", "#eab308"
         else: return "HIGH", "#ef4444"
-    else:  # body_toxin
+    else:
         value = latest.get("body_toxin", 0)
         if value <= 1: return "OPTIMAL", "#10b981"
         elif value <= 3: return "MODERATE", "#eab308"
@@ -131,12 +135,12 @@ with col1:
         <h1 style="margin:0; color:white;">{latest.get('body_age', 0):.1f} <span style="font-size:22px; color:#94a3b8;">/ {latest.get('age', 0)}</span></h1>
         <p style="color:#94a3b8;">Biological vs Chronological Age</p>
         <p style="color:{'#4ade80' if delta_body <= 0 else '#f87171'}; font-size:15px; margin-top:auto;">
-            {'↓' if delta_body <= 0 else '↑'} {abs(delta_body):.1f} years vs last period
+            {'↓' if delta_body <= 0 else '↑'} {abs(delta_body):.1f} years
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-# Work Load
+# Work Load & Body Toxins (identique)
 status, color = get_status_badge("work_load")
 delta_work = latest.get("work_load_change", 0)
 with col2:
@@ -149,12 +153,11 @@ with col2:
         <h3 style="color:#e0f2e9; margin:15px 0 8px 0;">Workload Intensity</h3>
         <h1 style="margin:0; color:white;">{latest.get('work_load', 0):.1f} <span style="font-size:18px; color:#94a3b8;">/ 100</span></h1>
         <p style="color:{'#4ade80' if delta_work <= 0 else '#f87171'}; font-size:15px; margin-top:auto;">
-            {'↓' if delta_work <= 0 else '↑'} {abs(delta_work):.1f} vs last period
+            {'↓' if delta_work <= 0 else '↑'} {abs(delta_work):.1f}
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-# Body Toxins
 status, color = get_status_badge("body_toxin")
 delta_toxin = latest.get("body_toxin_change", 0)
 with col3:
@@ -167,123 +170,136 @@ with col3:
         <h3 style="color:#e0f2e9; margin:15px 0 8px 0;">Body Toxins</h3>
         <h1 style="margin:0; color:white;">{latest.get('body_toxin', 0):.1f} <span style="font-size:18px; color:#94a3b8;">/ 100</span></h1>
         <p style="color:{'#4ade80' if delta_toxin <= 0 else '#f87171'}; font-size:15px; margin-top:auto;">
-            {'↓' if delta_toxin <= 0 else '↑'} {abs(delta_toxin):.1f} vs last period
+            {'↓' if delta_toxin <= 0 else '↑'} {abs(delta_toxin):.1f}
         </p>
     </div>
     """, unsafe_allow_html=True)
 
 st.divider()
 
-# ====================== AI PREDICTIONS ======================
+# ====================== AI PREDICTIONS (Améliorée) ======================
 st.subheader("AI Predictions")
-st.caption("Predictions for the coming period based on your current profile and trends")
+st.caption("Predictions based on your current trends and lifestyle data")
 
 p1, p2, p3, p4 = st.columns(4)
 
-# 1. Injury Risk
-injury_risk = latest.get('predicted_injury_risk_%', 0)
-if injury_risk < 25:
-    injury_color = "#10b981"
-    injury_text = "Low risk – Good recovery and load management"
-elif injury_risk < 50:
-    injury_color = "#f59e0b"
-    injury_text = "Moderate risk – Pay attention to recovery"
+# Injury Risk
+injury = latest.get('predicted_injury_risk_%', 0)
+if injury < 25:
+    inj_color, inj_text = "#10b981", "Low risk – Keep current balance"
+elif injury < 50:
+    inj_color, inj_text = "#f59e0b", "Moderate risk – Focus on recovery"
 else:
-    injury_color = "#ef4444"
-    injury_text = "High risk – Consider reducing intensity"
+    inj_color, inj_text = "#ef4444", "High risk – Reduce load and improve sleep"
 
 with p1:
     st.markdown(f"""
-    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {injury_color}; height:240px;">
-        <h4 style="margin:0 0 8px 0; color:#e0f2e9;">Injury Risk</h4>
-        <h1 style="margin:0; color:{injury_color};">{injury_risk:.0f}%</h1>
-        <p style="color:#94a3b8; font-size:14px; margin:12px 0;">Probability of injury in the near future</p>
-        <p style="color:{injury_color}; font-size:13px;">{injury_text}</p>
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {inj_color}; height:245px;">
+        <span style="font-size:28px;">⚠️</span>
+        <h4 style="margin:12px 0 8px 0;">Injury Risk</h4>
+        <h1 style="margin:0; color:{inj_color};">{injury:.0f}%</h1>
+        <p style="color:#94a3b8; font-size:13.5px;">Probability of injury</p>
+        <p style="color:{inj_color}; font-size:13px; margin-top:8px;">{inj_text}</p>
     </div>
     """, unsafe_allow_html=True)
 
-# 2. Chronic Disease Risk
-chronic_risk = latest.get('predicted_chronic_risk_%', 0)
-if chronic_risk < 30:
-    chronic_color = "#10b981"
-    chronic_text = "Low risk – Current lifestyle is protective"
-elif chronic_risk < 60:
-    chronic_color = "#f59e0b"
-    chronic_text = "Moderate risk – Some improvements recommended"
+# Chronic Disease Risk
+chronic = latest.get('predicted_chronic_risk_%', 0)
+if chronic < 30:
+    chr_color, chr_text = "#10b981", "Low risk – Protective lifestyle"
+elif chronic < 60:
+    chr_color, chr_text = "#f59e0b", "Moderate risk – Improvements needed"
 else:
-    chronic_color = "#ef4444"
-    chronic_text = "High risk – Medical follow-up advised"
+    chr_color, chr_text = "#ef4444", "High risk – Medical follow-up advised"
 
 with p2:
     st.markdown(f"""
-    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {chronic_color}; height:240px;">
-        <h4 style="margin:0 0 8px 0; color:#e0f2e9;">Chronic Disease Risk</h4>
-        <h1 style="margin:0; color:{chronic_color};">{chronic_risk:.0f}%</h1>
-        <p style="color:#94a3b8; font-size:14px; margin:12px 0;">Risk of developing long-term health issues</p>
-        <p style="color:{chronic_color}; font-size:13px;">{chronic_text}</p>
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {chr_color}; height:245px;">
+        <span style="font-size:28px;">🩺</span>
+        <h4 style="margin:12px 0 8px 0;">Chronic Disease Risk</h4>
+        <h1 style="margin:0; color:{chr_color};">{chronic:.0f}%</h1>
+        <p style="color:#94a3b8; font-size:13.5px;">Long-term health risk</p>
+        <p style="color:{chr_color}; font-size:13px; margin-top:8px;">{chr_text}</p>
     </div>
     """, unsafe_allow_html=True)
 
-# 3. Predicted Body Age
-pred_body_age = latest.get('predicted_body_age_3m', 0)
-delta_age = pred_body_age - latest.get('body_age', 0)
-if delta_age < -1:
-    age_color = "#10b981"
-    age_text = "Excellent – Your body is getting biologically younger"
-elif delta_age < 1:
-    age_color = "#eab308"
-    age_text = "Stable – Maintaining good biological age"
+# Predicted Body Age
+pred_age = latest.get('predicted_body_age_3m', 0)
+age_delta = pred_age - latest.get('body_age', 0)
+if age_delta < -0.5:
+    age_color, age_text = "#10b981", "Improving – Body getting younger"
+elif age_delta < 0.5:
+    age_color, age_text = "#eab308", "Stable biological age"
 else:
-    age_color = "#ef4444"
-    age_text = "Attention – Biological age is increasing"
+    age_color, age_text = "#ef4444", "Increasing – Focus on recovery"
 
 with p3:
     st.markdown(f"""
-    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {age_color}; height:240px;">
-        <h4 style="margin:0 0 8px 0; color:#e0f2e9;">Predicted Body Age</h4>
-        <h1 style="margin:0; color:{age_color};">{pred_body_age:.1f}</h1>
-        <p style="color:#94a3b8; font-size:14px; margin:12px 0;">Estimated biological age in the near future</p>
-        <p style="color:{age_color}; font-size:13px;">{age_text}</p>
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {age_color}; height:245px;">
+        <span style="font-size:28px;">🧬</span>
+        <h4 style="margin:12px 0 8px 0;">Predicted Body Age</h4>
+        <h1 style="margin:0; color:{age_color};">{pred_age:.1f}</h1>
+        <p style="color:#94a3b8; font-size:13.5px;">Future biological age</p>
+        <p style="color:{age_color}; font-size:13px; margin-top:8px;">{age_text}</p>
     </div>
     """, unsafe_allow_html=True)
 
-# 4. Performance Improvement
-perf_imp = latest.get('predicted_performance_improvement_%', 0)
-if perf_imp > 15:
-    perf_color = "#10b981"
-    perf_text = "Strong expected improvement"
-elif perf_imp > 0:
-    perf_color = "#eab308"
-    perf_text = "Moderate expected improvement"
+# Performance Improvement
+perf = latest.get('predicted_performance_improvement_%', 0)
+if perf > 10:
+    perf_color, perf_text = "#10b981", "Strong expected gains"
+elif perf > 0:
+    perf_color, perf_text = "#eab308", "Moderate improvement expected"
 else:
-    perf_color = "#ef4444"
-    perf_text = "Risk of performance decline"
+    perf_color, perf_text = "#ef4444", "Risk of decline – Optimize recovery"
 
 with p4:
     st.markdown(f"""
-    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {perf_color}; height:240px;">
-        <h4 style="margin:0 0 8px 0; color:#e0f2e9;">Performance Improvement</h4>
-        <h1 style="margin:0; color:{perf_color};">{perf_imp:+.1f}%</h1>
-        <p style="color:#94a3b8; font-size:14px; margin:12px 0;">Expected change in physical performance</p>
-        <p style="color:{perf_color}; font-size:13px;">{perf_text}</p>
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {perf_color}; height:245px;">
+        <span style="font-size:28px;">📈</span>
+        <h4 style="margin:12px 0 8px 0;">Performance Improvement</h4>
+        <h1 style="margin:0; color:{perf_color};">{perf:+.1f}%</h1>
+        <p style="color:#94a3b8; font-size:13.5px;">Expected performance change</p>
+        <p style="color:{perf_color}; font-size:13px; margin-top:8px;">{perf_text}</p>
     </div>
     """, unsafe_allow_html=True)
 
 st.divider()
 
-# ====================== LONGITUDINAL TIMELINE ======================
+# ====================== KEY INSIGHTS & RECOMMENDATIONS ======================
+st.subheader("Key Insights & Recommendations")
+
+insight_col1, insight_col2 = st.columns(2)
+
+with insight_col1:
+    st.markdown(f"""
+    <div class="insight-card">
+        <h4>📌 Main Insight</h4>
+        <p>Your body age is currently <strong>{latest.get('body_age', 0):.1f}</strong> compared to your chronological age of <strong>{latest.get('age', 0)}</strong>.</p>
+        <p>Workload is in <strong>{latest.get('workload_state', 'moderate_load').replace('_', ' ').title()}</strong> zone.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with insight_col2:
+    st.markdown(f"""
+    <div class="insight-card">
+        <h4>💡 Top Recommendation</h4>
+        <p>Focus on improving sleep and reducing sedentary time to lower chronic risk and support performance gains.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.divider()
+
+# ====================== TIMELINE ======================
 st.subheader("Longitudinal Performance Timeline")
 st.caption("Monthly tracking with event correlation")
 
-# 4 Boutons tous en noir
 col_buttons = st.columns([1.2, 1, 1, 1])
-
 btn_all = col_buttons[0].button("All Metrics", use_container_width=True)
 btn_body = col_buttons[1].button("Body Age", use_container_width=True)
 btn_work = col_buttons[2].button("Workload", use_container_width=True)
 btn_toxin = col_buttons[3].button("Toxins", use_container_width=True)
 
-# Logique des boutons
 if btn_body:
     metrics = ["body_age"]
     colors = {"body_age": "#FFD700"}
@@ -297,24 +313,9 @@ else:
     metrics = ["body_age", "work_load", "body_toxin"]
     colors = {"body_age": "#FFD700", "work_load": "#00FF9D", "body_toxin": "#00CCFF"}
 
-fig = px.line(
-    user_df,
-    x="datetime",
-    y=metrics,
-    color_discrete_map=colors,
-    markers=True
-)
-
-fig.update_layout(
-    template="plotly_dark",
-    height=520,
-    plot_bgcolor="#1a1a1a",
-    paper_bgcolor="#0a0a0a",
-    xaxis_title="",
-    yaxis_title="",
-    legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5),
-    font=dict(color="#e0f2e9")
-)
+fig = px.line(user_df, x="datetime", y=metrics, color_discrete_map=colors, markers=True)
+fig.update_layout(template="plotly_dark", height=520, plot_bgcolor="#1a1a1a", paper_bgcolor="#0a0a0a",
+                  legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5))
 
 st.plotly_chart(fig, use_container_width=True)
 
