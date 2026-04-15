@@ -37,7 +37,7 @@ st.markdown("""
         padding: 22px;
         border-radius: 16px;
         border: 1px solid;
-        height: 260px !important;
+        height: 320px !important;
         display: flex;
         flex-direction: column;
     }
@@ -148,7 +148,7 @@ with col2:
     <div class="health-card" style="border-color: {color};">
         <div style="display:flex; justify-content:space-between;">
             <span style="font-size:28px;">⚡</span>
-            <span style="background:{color}; color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
+            <span style="background:{color}; color:white; padding:8px 16px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
         </div>
         <h3 style="color:#e0f2e9; margin:15px 0 8px 0;">Workload Intensity</h3>
         <h1 style="margin:0; color:white;">{latest.get('work_load', 0):.1f} <span style="font-size:18px; color:#94a3b8;">/ 100</span></h1>
@@ -165,7 +165,7 @@ with col3:
     <div class="health-card" style="border-color: {color};">
         <div style="display:flex; justify-content:space-between;">
             <span style="font-size:28px;">🛡️</span>
-            <span style="background:{color}; color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
+            <span style="background:{color}; color:white; padding:8px 16px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
         </div>
         <h3 style="color:#e0f2e9; margin:15px 0 8px 0;">Body Toxins</h3>
         <h1 style="margin:0; color:white;">{latest.get('body_toxin', 0):.1f} <span style="font-size:18px; color:#94a3b8;">/ 100</span></h1>
