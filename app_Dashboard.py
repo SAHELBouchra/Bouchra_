@@ -106,24 +106,44 @@ col1, col2, col3 = st.columns(3)
 
 def get_status_badge(metric_type):
     if metric_type == "body_age":
+        body_age = latest.get("body_age", 0)
+        chrono_age = latest.get("age", 0)
         delta = latest.get("body_age_change", 0)
-        if delta <= -1: return "OPTIMAL", "#10b981"
-        elif delta <= 1: return "GOOD", "#eab308"
-        else: return "ATTENTION", "#ef4444"
+        gap = body_age - chrono_age                    # Différence absolue (le plus important)
+
+        if gap <= -2:                                  # Biologiquement plus jeune
+            return "OPTIMAL", "#10b981"
+        elif gap <= 2:                                 # Proche de l'âge réel
+            return "GOOD", "#eab308"
+        else:                                          # Body Age nettement plus élevé
+            return "ATTENTION", "#ef4444"
+
     elif metric_type == "work_load":
         value = latest.get("work_load", 0)
-        if value <= 30: return "OPTIMAL", "#10b981"
-        elif value <= 60: return "MODERATE", "#eab308"
-        else: return "HIGH", "#ef4444"
-    else:
-        value = latest.get("body_toxin", 0)
-        if value <= 1: return "OPTIMAL", "#10b981"
-        elif value <= 3: return "MODERATE", "#eab308"
-        else: return "HIGH", "#ef4444"
+        if value <= 30:
+            return "OPTIMAL", "#10b981"
+        elif value <= 60:
+            return "MODERATE", "#eab308"
+        else:
+            return "HIGH", "#ef4444"
 
-# Body Age
+    else:  # body_toxin
+        value = latest.get("body_toxin", 0)
+        if value <= 1:
+            return "OPTIMAL", "#10b981"
+        elif value <= 3:
+            return "MODERATE", "#eab308"
+        else:
+            return "HIGH", "#ef4444"
+
+
+# ====================== BODY AGE CARD ======================
 status, color = get_status_badge("body_age")
 delta_body = latest.get("body_age_change", 0)
+body_age = latest.get('body_age', 0)
+chrono_age = latest.get('age', 0)
+gap = body_age - chrono_age
+
 with col1:
     st.markdown(f"""
     <div class="health-card" style="border-color: {color};">
@@ -132,15 +152,16 @@ with col1:
             <span style="background:{color}; color:white; padding:8px 16px; border-radius:20px; font-size:13px; font-weight:bold;">{status}</span>
         </div>
         <h3 style="color:#e0f2e9; margin:15px 0 8px 0;">Body Age</h3>
-        <h1 style="margin:0; color:white;">{latest.get('body_age', 0):.1f} <span style="font-size:22px; color:#94a3b8;">/ {latest.get('age', 0)}</span></h1>
+        <h1 style="margin:0; color:white;">{body_age:.1f} <span style="font-size:22px; color:#94a3b8;">/ {chrono_age}</span></h1>
         <p style="color:#94a3b8;">Biological vs Chronological Age</p>
-        <p style="color:{'#4ade80' if delta_body <= 0 else '#f87171'}; font-size:15px; margin-top:auto;">
-            {'↓' if delta_body <= 0 else '↑'} {abs(delta_body):.1f} years
+        <p style="color:{'#4ade80' if gap <= 0 else '#f87171'}; font-size:14px; margin-top:auto;">
+            {'↓' if gap <= 0 else '↑'} {abs(gap):.1f} years vs chronological age
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-# Work Load & Body Toxins (identique)
+
+# ====================== WORK LOAD CARD ======================
 status, color = get_status_badge("work_load")
 delta_work = latest.get("work_load_change", 0)
 with col2:
@@ -158,6 +179,8 @@ with col2:
     </div>
     """, unsafe_allow_html=True)
 
+
+# ====================== BODY TOXINS CARD ======================
 status, color = get_status_badge("body_toxin")
 delta_toxin = latest.get("body_toxin_change", 0)
 with col3:
