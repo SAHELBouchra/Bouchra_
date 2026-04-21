@@ -194,7 +194,7 @@ else:
 
 with p1:
     st.markdown(f"""
-    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {inj_color}; height:300px;">
+    <div style="background:#1a1a1a; padding:20px; border-radius:16px; border:1px solid {inj_color}; height:400px;">
         <span style="font-size:28px;">⚠️</span>
         <h4 style="margin:12px 0 8px 0;">Injury Risk</h4>
         <h1 style="margin:0; color:{inj_color};">{injury:.0f}%</h1>
